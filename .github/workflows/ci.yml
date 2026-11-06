@@ -1,0 +1,51 @@
+name: ci
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  host:
+    name: host tests + remote patches
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: deps
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends puredata-core lua5.4 nodejs
+      - name: generated patches are up to date
+        run: |
+          python3 remote/tools/gen_pd.py
+          python3 remote/tools/gen_max.py
+          git diff --exit-code -- remote/
+      - name: tests
+        run: scripts/test.sh
+
+  bench:
+    name: Blackfin simulator bench
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: deps
+        run: >
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends build-essential
+          libgmp-dev libmpfr-dev libmpc-dev zlib1g-dev texinfo flex bison xz-utils
+          puredata-core lua5.4 nodejs
+      - name: toolchain cache
+        id: tc
+        uses: actions/cache@v4
+        with:
+          path: sdk/toolchain/bfin
+          key: bfin-${{ runner.os }}-${{ hashFiles('scripts/setup_toolchain.sh', '.gitmodules') }}
+      - name: toolchain (first run about 30 min, cached afterwards)
+        if: steps.tc.outputs.cache-hit != 'true'
+        run: scripts/setup_toolchain.sh
+      - name: feature check + bench (no TE firmware needed)
+        run: scripts/test.sh --bench
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bench-screens
+          path: sdk/build/demo/*.png
+          if-no-files-found: ignore

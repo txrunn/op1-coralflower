@@ -1,0 +1,13 @@
+#N canvas 0 50 900 600 12;
+#X obj 10 10 loadbang;
+#X msg 10 40 \; p-in tonic 3 \; p-in boct 1 \; p-in press 20 1 \; dev-in 2 22 \; dev-in 4 23 \; dev-in 65 27 \; dev-in 3 105 \; dev-in 12 106 \; dev-in 1 113 \; dev-in 127 114 \; dev-in 2 117 \; dev-in 69 118 \; dev-in 98 118 \; dev-in 0 117 \; pd quit;
+#X obj 10 200 r p-in;
+#X obj 200 200 r dev-in;
+#X obj 10 240 coralop-remote;
+#X obj 10 700 print OUT;
+#X obj 300 700 print STATE;
+#X connect 0 0 1 0;
+#X connect 2 0 4 0;
+#X connect 3 0 4 1;
+#X connect 4 0 5 0;
+#X connect 4 1 6 0;

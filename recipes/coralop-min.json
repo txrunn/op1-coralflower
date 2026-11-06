@@ -1,0 +1,7 @@
+{
+  "name": "coralop-min",
+  "boot_text": "coralmin",
+  "features": [
+    "coralop"
+  ]
+}

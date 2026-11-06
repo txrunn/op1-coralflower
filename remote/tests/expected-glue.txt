@@ -1,0 +1,14 @@
+FRET: tuning halfdown
+FRET: tuning nashville
+FRET: tuning facgce
+FRET: tuning openg
+FRET: span 5
+FRET: bass any
+FRET: bass strict
+FRET: capo 2
+FRET: out 1
+FRET: chord Gm7
+FRET: root 7
+FRET: channels 3 2
+FRET: channels 3 4
+FRET: 60 100 1

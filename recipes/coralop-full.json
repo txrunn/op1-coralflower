@@ -1,0 +1,20 @@
+{
+  "name": "coralop-full",
+  "boot_text": "op1coral",
+  "features": [
+    "coralop",
+    "lofi",
+    "wheel",
+    "warp",
+    "trio",
+    "m1",
+    "mono",
+    "reso",
+    "shimmer",
+    "fxpack",
+    "drumroll",
+    "noteroll",
+    "requantize",
+    "engine_plus"
+  ]
+}

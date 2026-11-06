@@ -1,0 +1,196 @@
+{
+  "schema": 1,
+  "name": "coralop",
+  "title": "CoralOP: CoralFlower's chord instrument",
+  "version": "0.2",
+  "status": "experimental",
+  "firmware": {
+    "R246": "c5315218f825f143b415ca554516541898abee843d3a236df0b54c04e1fb13a9"
+  },
+  "sdk": 1,
+  "prefix": [
+    "co_",
+    "cf_"
+  ],
+  "summary": "Shift + insert turns the synth keyboard into CoralFlower (FicusFicusov/CoralFlower, after the Telepathic Instruments Orchid): black keys are chord buttons (M6 M7 M9 | s2 s4 | m6 m7 m9 | M m, latching in Lock), white keys roots in the key's scale degrees; Side layouts as CoralFlower's. Each chord goes out on USB MIDI as two parts, CHORD and BASS, on their own channels (1 and 2), and on the OP-1's synth when LOCAL is on. T1 PLAY (Quantize, Key, 27 scales, layout), T2 CHORD (the last pressed button's type, added degrees, inversion, bass degree), T3 BASS / MIDI, T4 HOLD. MIDI channel 16 remote-controls it (keys, every setting; state and chord names sent back) for the Pd / plugdata and Max panels in remote/.",
+  "license": "GPL-3.0-only",
+  "authors": [
+    "CoralFlower: FicusFicusov (after ChoralRoot FM-1 by Quixotic7 and Felucca by Leo Kuroshita)",
+    "OP-1 port: Tarun Gunaseelan (txrunn)"
+  ],
+  "docs": "README.md",
+  "sources": [
+    "coralop.c",
+    "co_play.c",
+    "co_remote.c",
+    "cf_chord.c",
+    "cf_theory.c"
+  ],
+  "libs": [
+    "gfx"
+  ],
+  "cflags": [
+    "-O2",
+    "-DCF_SCALES=cf_SCALES",
+    "-DCF_ADDS=cf_ADDS"
+  ],
+  "shared": [
+    {
+      "point": "on_key",
+      "fn": "co_on_key",
+      "mode": "filter",
+      "order": "first"
+    },
+    {
+      "point": "on_knob",
+      "fn": "co_on_knob",
+      "mode": "filter",
+      "order": "first"
+    },
+    {
+      "point": "midi_in",
+      "fn": "co_midi",
+      "mode": "filter"
+    },
+    {
+      "point": "seq_tick",
+      "fn": "co_tick"
+    },
+    {
+      "point": "frame",
+      "fn": "co_frame",
+      "order": "last"
+    }
+  ],
+  "hooks": {},
+  "controls": [
+    "shift + insert: CoralOP on (panel opens) / panel again / off (while the panel shows)",
+    "insert while the panel shows: pin it (no timeout) / unpin",
+    "synth playmode while on: black keys = chord buttons, white keys = roots (Top layouts); keys go to CoralOP only",
+    "T1 PLAY: blue QUANTIZE, green KEY, white SCALE, orange LAYOUT",
+    "T2 CHORD: the last pressed chord button: blue TYPE, green ADD, white INVERSION, orange BASS DEGREE",
+    "T3 BASS (T3 again: MIDI): blue BASS on/off, green OCTAVE, white OCTAVER, orange RETRIG; MIDI: blue CHORD CH, green BASS CH, white LOCAL, orange VELOCITY",
+    "T4: HOLD (Top layouts)",
+    "TE's octave arrows set CoralFlower's octave",
+    "MIDI channel 16 in: notes 53..76 = the 24 keys, 78 = HOLD, CC 20..31 / 102 / 104..108 settings, 109 panic, 110 dump; out: the same CCs, 112..118 state and chord name"
+  ],
+  "tests": [
+    "test_co_play.c",
+    "test_co_remote.c",
+    "sim/run_cotest.py"
+  ],
+  "depends": [],
+  "conflicts": [
+    "chordplus",
+    "quantize"
+  ],
+  "claims": [
+    {
+      "input": "insert_press",
+      "shift": "yes",
+      "screen": "any"
+    },
+    {
+      "input": "insert_press",
+      "shift": "no",
+      "screen": "any",
+      "modal": true
+    },
+    {
+      "input": "keyboard_press",
+      "shift": "any",
+      "screen": [
+        "synth",
+        "drum",
+        "tape",
+        "mixer",
+        "tempo",
+        "album"
+      ],
+      "playmode": "synth",
+      "modal": true
+    },
+    {
+      "input": "t1_press",
+      "shift": "any",
+      "screen": [
+        "synth",
+        "drum",
+        "tape",
+        "mixer",
+        "tempo",
+        "album"
+      ],
+      "playmode": "synth",
+      "modal": true
+    },
+    {
+      "input": "t2_press",
+      "shift": "any",
+      "screen": [
+        "synth",
+        "drum",
+        "tape",
+        "mixer",
+        "tempo",
+        "album"
+      ],
+      "playmode": "synth",
+      "modal": true
+    },
+    {
+      "input": "t3_press",
+      "shift": "any",
+      "screen": [
+        "synth",
+        "drum",
+        "tape",
+        "mixer",
+        "tempo",
+        "album"
+      ],
+      "playmode": "synth",
+      "modal": true
+    },
+    {
+      "input": "t4_press",
+      "shift": "any",
+      "screen": [
+        "synth",
+        "drum",
+        "tape",
+        "mixer",
+        "tempo",
+        "album"
+      ],
+      "playmode": "synth",
+      "modal": true
+    },
+    {
+      "input": "blue_turn",
+      "shift": "any",
+      "screen": "any",
+      "modal": true
+    },
+    {
+      "input": "green_turn",
+      "shift": "any",
+      "screen": "any",
+      "modal": true
+    },
+    {
+      "input": "white_turn",
+      "shift": "any",
+      "screen": "any",
+      "modal": true
+    },
+    {
+      "input": "orange_turn",
+      "shift": "any",
+      "screen": "any",
+      "modal": true
+    }
+  ],
+  "status_note": "0.2: remote control on MIDI channel 16; Seq thread owns the model",
+  "evidence": []
+}

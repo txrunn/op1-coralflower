@@ -1,0 +1,13 @@
+#N canvas 0 50 600 400 12;
+#X obj 10 10 loadbang;
+#X msg 10 40 \; core-in enable 1 \; core-in enable 0 \; core-in quant 2 \; core-in tonic 14 \; core-in boct -2 \; core-in boct 5 \; core-in vel 300 \; core-in press 7 1 \; core-in press 7 0 \; core-in hold 1 \; core-in hold 0 \; core-in sync \; core-in panic \; dev-in 127 20 \; dev-in 0 26 \; dev-in 63 27 \; dev-in 5 23 \; dev-in 3 113 \; dev-in 64 112 \; dev-in 127 115 \; dev-in 9 115 \; dev-in 127 114 \; dev-in 5 117 \; dev-in 67 118 \; dev-in 35 118 \; dev-in 109 118 \; dev-in 55 118 \; dev-in 98 118 \; dev-in 0 117 \; dev-in 2 117 \; dev-in 68 118 \; dev-in 98 118 \; pd quit;
+#X obj 10 200 r core-in;
+#X obj 200 200 r dev-in;
+#X obj 10 240 coralop-core;
+#X obj 10 280 print OUT;
+#X obj 200 280 print STATE;
+#X connect 0 0 1 0;
+#X connect 2 0 4 0;
+#X connect 3 0 4 1;
+#X connect 4 0 5 0;
+#X connect 4 1 6 0;

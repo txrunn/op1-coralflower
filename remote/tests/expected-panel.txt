@@ -1,0 +1,16 @@
+OUT: ctl 0 110
+OUT: ctl 3 22
+OUT: ctl 65 27
+OUT: note 73 100
+STATE: tonic 2
+STATE: scale 4
+STATE: boct 1
+STATE: type 3
+STATE: add 12
+STATE: btn 7 1
+STATE: btn 8 0
+STATE: btn 9 0
+STATE: btn 10 0
+STATE: holding 1
+STATE: chord Eb
+STATE: chord -

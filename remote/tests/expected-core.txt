@@ -1,0 +1,34 @@
+OUT: ctl 127 20
+OUT: ctl 0 20
+OUT: ctl 2 21
+OUT: ctl 14 22
+OUT: ctl 62 27
+OUT: ctl 69 27
+OUT: ctl 127 102
+OUT: note 60 100
+OUT: note 60 0
+OUT: note 78 100
+OUT: note 78 0
+OUT: ctl 0 110
+OUT: ctl 0 109
+STATE: enable 1
+STATE: bass 0
+STATE: boct -1
+STATE: scale 5
+STATE: btn 7 1
+STATE: btn 8 1
+STATE: btn 9 0
+STATE: btn 10 0
+STATE: btn 0 0
+STATE: btn 1 0
+STATE: btn 2 0
+STATE: btn 3 0
+STATE: btn 4 0
+STATE: btn 5 0
+STATE: btn 6 1
+STATE: root -1
+STATE: root 9
+STATE: holding 1
+STATE: chord C#m7b
+STATE: chord -
+STATE: chord Db
