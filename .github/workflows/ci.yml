@@ -34,13 +34,19 @@ jobs:
           puredata-core lua5.4 nodejs
       - name: toolchain cache
         id: tc
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: sdk/toolchain/bfin
-          key: bfin-${{ runner.os }}-${{ hashFiles('scripts/setup_toolchain.sh', '.gitmodules') }}
+          key: bfin-${{ runner.os }}-${{ hashFiles('scripts/setup_toolchain.sh') }}
       - name: toolchain (first run about 30 min, cached afterwards)
         if: steps.tc.outputs.cache-hit != 'true'
         run: scripts/setup_toolchain.sh
+      - name: save toolchain (even if the tests below fail)
+        if: steps.tc.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: sdk/toolchain/bfin
+          key: ${{ steps.tc.outputs.cache-primary-key }}
       - name: feature check + bench (no TE firmware needed)
         run: scripts/test.sh --bench
       - uses: actions/upload-artifact@v4

@@ -4,7 +4,8 @@
 cd "$(dirname "$0")" || exit 1
 fail=0
 for t in core panel glue; do
-    out=$(timeout 30 pd -nogui -noaudio -nomidi -batch -path ../pd -open test-$t.pd 2>&1)
+    # -nrt, and drop the realtime notice some Pd builds still print (Ubuntu's without pd-watchdog)
+    out=$(timeout 30 pd -nogui -noaudio -nomidi -nrt -batch -path ../pd -open test-$t.pd 2>&1 | grep -v 'real-time priority')
     if [ "$out" == "$(cat expected-$t.txt)" ]; then echo "PASS  pd $t"; else echo "FAIL  pd $t"; diff <(echo "$out") expected-$t.txt | head; fail=1; fi
 done
 node test_max_core.js && echo "PASS  max core" || { echo "FAIL  max core"; fail=1; }
