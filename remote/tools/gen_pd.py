@@ -28,9 +28,15 @@ SCALES = ["Major", "Natural_Minor", "Major_Pentatonic", "Minor_Pentatonic", "Dor
           "Phrygian_Dominant", "Lydian_Dominant", "Altered", "Whole_Tone", "Diminished_W-H", "Diminished_H-W",
           "Hungarian_Minor", "Double_Harmonic", "Hirajoshi", "In_Sen", "Iwato", "Kumoi", "Chromatic"]
 TYPES = ["None", "Major", "Minor", "Diminished", "Augmented", "Sus2", "Sus4", "Power"]
-ADDS = ["None", "7", "Maj7", "6", "Add9", "9", "Maj9", "6/9", "Add2", "Add4", "11", "13", "7_Add11", "Maj7+11",
-        "7b9", "7+9", "Add11", "Dim7", "Maj13"]
+# (as symbols: a bare "7" would reach the label as a number, which Pd's [cnv] refuses)
+ADDS = ["None", "7th", "Maj7", "6th", "Add9", "9th", "Maj9", "6/9", "Add2", "Add4", "11th", "13th", "7_Add11",
+        "Maj7+11", "7b9", "7+9", "Add11", "Dim7", "Maj13"]
 NOTES = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]
+
+
+def esc(s):
+    """a label with spaces ("_" in this file): Pd saves them escaped"""
+    return s if s == "empty" else s.replace("_", "\\ ")
 
 
 class Patch:
@@ -242,28 +248,28 @@ CELL = 22
 def tgl(x, y, label="empty", fg=CORAL, size=CELL, lx=None, ly=None):
     lx = size + 5 if lx is None else lx
     ly = size // 2 if ly is None else ly
-    return x, y, f"tgl {size} 0 empty empty {label} {lx} {ly} 0 10 {BG} {fg} {FG} 0 1"
+    return x, y, f"tgl {size} 0 empty empty {esc(label)} {lx} {ly} 0 10 {BG} {fg} {FG} 0 1"
 
 
-def hradio(x, y, n, label, fg):
-    return x, y, f"hradio {CELL} 1 0 {n} empty empty {label} 0 -8 0 10 {BG} {fg} {fg} 0"
+def hradio(x, y, n, label, fg, size=CELL):
+    return x, y, f"hradio {size} 1 0 {n} empty empty {esc(label)} 0 -8 0 10 {BG} {fg} {fg} 0"
 
 
 def nbx(x, y, w, lo, hi, label, fg):
-    return x, y, f"nbx {w} {CELL - 4} {lo} {hi} 0 0 empty empty {label} 0 -8 0 10 {BG} {FG} {fg} 0 256"
+    return x, y, f"nbx {w} {CELL - 4} {lo} {hi} 0 0 empty empty {esc(label)} 0 -8 0 10 {BG} {FG} {fg} 0 256"
 
 
 def bng(x, y, label, fg=CORAL, size=CELL):
-    return x, y, f"bng {size} 150 50 0 empty empty {label} {size + 5} {size // 2} 0 10 {BG} {fg} {FG}"
+    return x, y, f"bng {size} 150 50 0 empty empty {esc(label)} {size + 5} {size // 2} 0 10 {BG} {fg} {FG}"
 
 
 def cnv(x, y, w, h, recv, label, bg, lbl, font=12, lx=6, ly=10):
-    return x, y, f"cnv 1 {w} {h} empty {recv} {label} {lx} {ly} 0 {font} {bg} {lbl} 0"
+    return x, y, f"cnv 1 {w} {h} empty {recv} {esc(label)} {lx} {ly} 0 {font} {bg} {lbl} 0"
 
 
 def lbl(x, y, text, color=DIM, size=10):
     """a coloured label (a 1x1 canvas carrying it: Pd's comments take no colour)"""
-    return x, y, f"cnv 1 1 1 empty empty {text} 0 0 0 {size} {BG} {color} 0"
+    return x, y, f"cnv 1 1 1 empty empty {esc(text)} 0 0 0 {size} {BG} {color} 0"
 
 
 def cells(p, x, y, names, color=DIM, cell=CELL):
@@ -273,12 +279,12 @@ def cells(p, x, y, names, color=DIM, cell=CELL):
 
 
 def panel():
-    W, H = 760, 430
+    W, H = 760, 400
     p = Patch(1500, 1500)
     g = lambda spec: p.obj(*spec)           # noqa: E731
     g(cnv(0, 0, W, H, "empty", "empty", BG, FG))
     g(cnv(10, 8, 120, 24, "empty", "CORALOP", BG, CORAL, 18, 0, 12))
-    g(lbl(122, 20, "remote_-_MIDI_ch_16", DIM, 10))
+    g(lbl(122, 20, "remote_over_MIDI_channel_16", DIM, 10))
     core = p.obj(800, 600, "coralop-core")
     to_core = p.obj(800, 570, "t a")         # everything the panel says goes through here
     p.c(to_core, 0, core)
@@ -382,7 +388,7 @@ def panel():
     s = g(nbx(10, y + 122, 3, 0, 26, "SCALE", BLUE))
     wire(s, "scale")
     g(cnv(55, y + 120, 200, 22, "$0-scalename", "Major", BG, FG, 12, 4, 11))
-    ls = p.obj(1300, 760, "list store " + " ".join(SCALES))
+    ls = p.obj(1300, 760, "list store " + " ".join(esc(n) for n in SCALES))
     gs = p.msg(1300, 735, "get $1 1")
     p.c(state, names.index("scale"), gs)
     p.c(gs, 0, ls)
@@ -390,8 +396,8 @@ def panel():
     p.c(ls, 0, m)
     snm = p.obj(1300, 810, "s $0-scalename")
     p.c(m, 0, snm)
-    lay = g(hradio(10, y + 168, 4, "LAYOUT", BLUE))
-    cells(p, 10, y + 168, ["T+L", "TOP", "S+L", "SID"])
+    lay = g(hradio(10, y + 168, 4, "LAYOUT", BLUE, 28))
+    cells(p, 10, y + 168, ["T+L", "TOP", "S+L", "SID"], cell=28)
     wire(lay, "layout")
 
     # --- CHORD (the selected chord button's form)
@@ -413,7 +419,7 @@ def panel():
     ad = g(nbx(x0, y + 110, 2, 0, len(ADDS) - 1, "ADD", GREEN))
     wire(ad, "add")
     g(cnv(x0 + 32, y + 108, 110, 22, "$0-addname", "None", BG, FG, 12, 4, 11))
-    la = p.obj(1300, 960, "list store " + " ".join(ADDS))
+    la = p.obj(1300, 960, "list store " + " ".join(esc(n) for n in ADDS))
     ga = p.msg(1300, 935, "get $1 1")
     p.c(state, names.index("add"), ga)
     p.c(ga, 0, la)
@@ -452,7 +458,7 @@ def panel():
     # --- the keyboard: 14 white keys (roots, latched: a new one replaces the held one), 10 black (held while on)
     ky = 300
     g(cnv(10, ky - 16, 100, 14, "empty", "KEYS", BG, CORAL, 11, 0, 6))
-    g(lbl(60, ky - 9, "white_=_roots_(latched_until_REL)___black_=_chord_buttons_(held_while_lit)", DIM, 10))
+    g(lbl(60, ky - 9, "white:_roots_(latched_until_REL)___black:_chord_buttons_(held_while_lit)", DIM, 10))
     held = p.obj(gx, gy + 140, "f -1")      # the white key held
     rel_sel = p.obj(gx, gy + 165, "moses 0")
     rel_msg = p.msg(gx, gy + 190, "press $1 0")
@@ -484,20 +490,35 @@ def panel():
     p.c(t, 0, m)
     p.c(m, 0, held, 1)
     labels = ["M6", "M7", "M9", "s2", "s4", "m6", "m7", "m9", "M", "m"]
+    lit_on, lit_off = f"color {GREEN} {GREEN}", "color #2e2b34 #2e2b34"
     for j, k in enumerate(black_k):
+        # a button, not a toggle (plugdata draws an off toggle's cross under the label): a click flips the
+        # key's held state, and a light below shows it, set by the click and by the OP-1's "btn j b"
         x = wx[k - 1] + 20
-        kt = g(tgl(x, ky + 4, "empty", CORAL, 26))
-        g(lbl(x + 13 - 3 * len(labels[j]), ky + 14 - 0, labels[j], FG, 10))
-        m = p.msg(gx + 100 + j * 40, gy + 260, f"press {k} $1")
-        p.c(kt, 0, m)
+        kb = g(bng(x, ky + 4, "empty", CORAL, 26))
+        g(lbl(x + 13 - 3 * len(labels[j]), ky + 17, labels[j], FG, 10))
+        held_k = p.obj(gx + 100 + j * 40, gy + 235, "f")
+        flip = p.obj(gx + 100 + j * 40, gy + 260, "== 0")
+        p.c(kb, 0, held_k)
+        p.c(held_k, 0, flip)
+        p.c(flip, 0, held_k, 1)
+        m = p.msg(gx + 100 + j * 40, gy + 285, f"press {k} $1")
+        p.c(flip, 0, m)
         p.c(m, 0, to_core)
-        # lit (latched / held) chord buttons: a small light under the key, set by "btn j b"
-        lit = g(tgl(x + 7, ky + 32, "empty", GREEN, 10))
-        sl = p.obj(gx + 100 + j * 40, gy + 285, f"route {j}")
-        m = p.msg(gx + 100 + j * 40, gy + 310, "set $1")
+        light = g(cnv(x + 8, ky + 34, 10, 4, f"$0-lit{j}", "empty", "#2e2b34", FG, 10, 0, 0))
+        sel_ = p.obj(gx + 100 + j * 40, gy + 335, "sel 0")
+        p.c(flip, 0, sel_)
+        m_off = p.msg(gx + 100 + j * 40, gy + 360, lit_off)
+        m_on = p.msg(gx + 100 + j * 40, gy + 385, lit_on)
+        p.c(sel_, 0, m_off)
+        p.c(sel_, 1, m_on)
+        snd = p.obj(gx + 100 + j * 40, gy + 410, f"s $0-lit{j}")
+        p.c(m_off, 0, snd)
+        p.c(m_on, 0, snd)
+        sl = p.obj(gx + 100 + j * 40, gy + 310, f"route {j}")   # the OP-1's word: the light, and the state
         p.c(state, len(names), sl)
-        p.c(sl, 0, m)
-        p.c(m, 0, lit)
+        p.c(sl, 0, sel_)
+        p.c(sl, 0, held_k, 1)
     hb = g(tgl(10 + 14 * 34 + 6, ky + 4, "HOLD", GREEN, 26))
     m = p.msg(gx, gy + 290, "hold 1, hold 0")
     p.c(hb, 0, m)
@@ -576,6 +597,25 @@ def guitar():
         m = q.msg(x, 245, "tuning $1")
         q.c(ls, 0, m)
         q.c(m, 0, fr_s)
+    m = q.msg(700, 40, "tuning $1")          # typed into the symbol box
+    q.c(q.obj(700, 15, "r $1-owntuning"), 0, m)
+    q.c(m, 0, fr_s)
+    # one tuning selected across the two rows: the other row's mark goes the background's colour
+    on, off = f"color {BG} {GREEN} {GREEN}", f"color {BG} {BG} {GREEN}"
+    for row, (name, other) in enumerate((("tunsel", "tunsel2"), ("tunsel2", "tunsel"))):
+        x = 400 + row * 300
+        tb_ = q.obj(x, 270, "t b b")
+        q.c(q.obj(x + 100, 170, f"r $1-{name}"), 0, tb_)
+        m = q.msg(x, 295, on)
+        q.c(tb_, 1, m)
+        q.c(m, 0, q.obj(x, 320, f"s $1-{name}-in"))
+        m = q.msg(x + 150, 295, off)
+        q.c(tb_, 0, m)
+        q.c(m, 0, q.obj(x + 150, 320, f"s $1-{other}-in"))
+    lb = q.obj(700, 360, "loadbang")        # the first row starts selected (standard)
+    m = q.msg(700, 385, off)
+    q.c(lb, 0, m)
+    q.c(m, 0, q.obj(700, 410, "s $1-tunsel2-in"))
     # the voicing out: strummed through [pipe], on its own channel
     ro = q.obj(10, 300, "route note ch clear")
     q.c(q.obj(10, 275, "r $1-fretout"), 0, ro)
@@ -601,67 +641,73 @@ def guitar():
 def guitar_patch(with_panel):
     """coralop-guitar.pd: panel + fretboard; coralop-voicing.pd: the fretboard alone, listening to the OP-1 (its
     state on channel 16, its notes) with its voicing going out: a second plugdata whose MIDI goes to a guitar
-    instrument, not to the OP-1"""
-    p = Patch(800, 960 if with_panel else 500)
+    instrument, not to the OP-1.
+
+    Both are graph-on-parent, so plugdata's plugin mode shows just the panel. The plumbing is created first and a
+    background canvas over it, so only the controls show; the panel, the fretboard and the controls come after."""
     W = 760
-    top = 470 if with_panel else 30
+    top = 420 if with_panel else 10
+    y = top + 220                           # the guitar controls
+    H = y + 220
+    p = Patch(W + 200, H + 40)
     g = lambda spec: p.obj(*spec)           # noqa: E731
+    # --- plumbing (hidden under the background)
+    r = p.obj(20, top + 40, "r $0-fret")
+    o2 = p.obj(120, top + 40, "s $0-fretout")
+    p.obj(20, top + 70, "coralop-guitar-glue $0")
     if with_panel:
-        panel = p.obj(10, 10, "coralop-remote")
-        s = p.obj(W - 70, 446, "s $0-state")    # (the panel's state, out of its right outlet)
-        p.c(panel, 1, s)
-    r = p.obj(10, top - 24, "r $0-fret")
-    fr = p.obj(10, top, "coralfret")
-    p.c(r, 0, fr)
-    y = top + 220
-    o2 = p.obj(W - 100, y - 6, "s $0-fretout")   # (under the controls, drawn after it)
-    p.c(fr, 1, o2)
-    p.obj(10, y, "coralop-guitar-glue $0")
-    if not with_panel:                      # the OP-1's state, decoded (nothing goes back to it)
-        ci = p.obj(250, y, "ctlin")
-        ch16 = p.obj(330, y + 20, "== 16")
-        sp = p.obj(250, y + 40, "spigot")
-        pk = p.obj(250, y + 60, "pack f f")
-        core = p.obj(250, y + 80, "coralop-core")
-        st = p.obj(350, y + 100, "s $0-state")
+        s_state = p.obj(20, top + 100, "s $0-state")
+    else:                                   # the OP-1's state, decoded (nothing goes back to it)
+        ci = p.obj(250, top + 40, "ctlin")
+        ch16 = p.obj(330, top + 60, "== 16")
+        sp_ = p.obj(250, top + 80, "spigot")
+        pk = p.obj(250, top + 100, "pack f f")
+        core = p.obj(250, top + 120, "coralop-core")
+        st = p.obj(350, top + 140, "s $0-state")
         p.c(ci, 2, ch16)
-        p.c(ch16, 0, sp, 1)
+        p.c(ch16, 0, sp_, 1)
         p.c(ci, 1, pk, 1)
-        p.c(ci, 0, sp)
-        p.c(sp, 0, pk)
+        p.c(ci, 0, sp_)
+        p.c(sp_, 0, pk)
         p.c(pk, 0, core, 1)
         p.c(core, 1, st)
-    # the controls (drawn after: they cover the glue's box)
-    g(cnv(0, y - 8, W + 20, 212, "empty", "empty", BG, FG))
+    # --- the background, then what shows
+    g(cnv(0, 0, W + 20, H, "empty", "empty", BG, FG))
+    if with_panel:
+        panel = p.obj(10, 10, "coralop-remote")
+        p.c(panel, 1, s_state)
+    fr = p.obj(10, top, "coralfret")
+    p.c(r, 0, fr)
+    p.c(fr, 1, o2)
     g(cnv(16, y, 200, 14, "empty", "GUITAR", BG, CORAL, 12, 0, 7))
-    g(lbl(80, y + 7, "tuning:_standard_/_down_/_drop_/_re-entrant_/_more_strings", DIM, 10))
-    g((16, y + 20, f"hradio {CELL} 1 0 {len(TUNINGS)} $0-tunsel empty empty 0 -8 0 10 {BG} {GREEN} {GREEN} 0"))
-    cells(p, 16, y + 20, [l for _, l in TUNINGS])
-    g(lbl(16, y + 62, "open_/_modal_/_math_rock", DIM, 10))
-    g((16, y + 72, f"hradio {CELL} 1 0 {len(TUNINGS2)} $0-tunsel2 empty empty 0 -8 0 10 {BG} {GREEN} {GREEN} 0"))
-    cells(p, 16, y + 72, [l for _, l in TUNINGS2])
-    g(lbl(400, y + 62, "own_tuning_(letters_or_E2-style)", DIM, 10))
-    m = p.msg(400, y + 72, "tuning FACGCE")
-    sm = p.obj(560, y + 96, "s $0-fret")
-    p.c(m, 0, sm)
-    m = p.msg(510, y + 72, "tuning E3 A3 D4 G4 B3 E4")
-    p.c(m, 0, sm)
-    yy = y + 134
+    g(lbl(80, y + 7, "standard_/_down_/_drop_/_re-entrant_/_more_strings", DIM, 10))
+    TC = 30
+    g((16, y + 20, f"hradio {TC} 1 0 {len(TUNINGS)} $0-tunsel $0-tunsel-in empty 0 -8 0 10 {BG} {GREEN} {GREEN} 0"))
+    cells(p, 16, y + 20, [l for _, l in TUNINGS], cell=TC)
+    g(lbl(16, y + 74, "open_/_modal_/_math_rock", DIM, 10))
+    g((16, y + 84, f"hradio {TC} 1 0 {len(TUNINGS2)} $0-tunsel2 $0-tunsel2-in empty 0 -8 0 10 {BG} {GREEN} {GREEN} 0"))
+    cells(p, 16, y + 84, [l for _, l in TUNINGS2], cell=TC)
+    # your own: a symbol box (shown in plugin mode, unlike message boxes): "FACGCE" or "E3 A3 D4 G4 B3 E4", Enter
+    g(lbl(400, y + 7, "your_own:_type_FACGCE_or_E3_A3_D4_G4_B3_E4_then_Enter", DIM, 10))
+    p.add("symbolatom", 400, y + 20, "28 0 0 0 - - $0-owntuning")
+    yy = y + 154
     for i, (nm, lo, hi, x, v) in enumerate([("capo", 0, 12, 16, 0), ("frets", 12, 24, 76, 15),
-                                            ("span", 2, 5, 136, 3), ("strum", 0, 200, 196, 25),
-                                            ("outch", 1, 16, 266, 3)]):
+                                            ("span", 2, 5, 136, 3), ("strum", 0, 200, 206, 25),
+                                            ("outch", 1, 16, 286, 3)]):
         label = {"outch": "OUT_CH", "strum": "STRUM_MS", "span": "STRETCH"}.get(nm, nm.upper())
-        p.obj(x, yy, f"nbx 3 {CELL - 4} {lo} {hi} 0 1 $0-{nm} empty {label} 0 -8 0 10 {BG} {FG} {ORANGE} {v} 256")
-    g((336, yy - 2, f"hradio {CELL} 1 1 2 $0-bassmode empty BASS_NOTE 0 -8 0 10 {BG} {ORANGE} {ORANGE} 0"))
-    cells(p, 336, yy - 2, ["low", "any"])
-    for nm, label, x in [("out", "VOICING_TO_MIDI", 420), ("lefty", "LEFTY", 580)]:
+        p.obj(x, yy, f"nbx 3 {CELL - 4} {lo} {hi} 0 1 $0-{nm} empty {esc(label)} 0 -8 0 10 {BG} {FG} {ORANGE} {v} 256")
+    g((356, yy - 2, f"hradio {CELL} 1 1 2 $0-bassmode empty BASS\\ NOTE 0 -8 0 10 {BG} {ORANGE} {ORANGE} 0"))
+    cells(p, 356, yy - 2, ["low", "any"])
+    for nm, label, x in [("out", "VOICING_TO_MIDI", 450), ("lefty", "LEFTY", 620)]:
         on = 1 if (nm == "out" and not with_panel) else 0
-        p.obj(x, yy - 2, f"tgl {CELL} {on} $0-{nm} empty {label} {CELL + 5} {CELL // 2} 0 10 {BG} {GREEN} {FG} {on} 1")
-    g(lbl(16, yy + 38, "<_>_over_the_neck:_next_shape.__STRETCH:_frets_past_the_first_(3_=_a_four-fret_hand).",
+        p.obj(x, yy - 2, f"tgl {CELL} {on} $0-{nm} empty {esc(label)} {CELL + 5} {CELL // 2} 0 10 {BG} {GREEN} {FG} {on} 1")
+    g(lbl(16, yy + 38, "<_>_above_the_neck:_next_shape.___STRETCH:_frets_past_the_first_(3_=_a_four-fret_hand).",
           DIM, 10))
-    g(lbl(16, yy + 52, "BASS_NOTE_low:_the_chord's_bass_is_the_lowest_note.__any:_open_strings_may_ring_under_it.",
+    g(lbl(16, yy + 52, "BASS_NOTE_low:_the_chord's_bass_is_the_lowest_note.___any:_open_strings_may_ring_under_it.",
           DIM, 10))
+    p.tail.append(f"#X coords 0 -1 1 1 {W + 20} {H} 1 0 0;")
     p.write(os.path.join(OUT, "coralop-guitar.pd" if with_panel else "coralop-voicing.pd"))
+
 
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)

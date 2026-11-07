@@ -36,6 +36,12 @@ check(M.parse_note("E2") == 40 and M.parse_note("A2") == 45 and M.parse_note("Bb
       M.parse_note("F#4") == 66 and M.parse_note(64) == 64 and M.parse_note("H2") == nil, "parse_note")
 check(#M.tuning({"E2", "A2", "D3", "G3", "B3", "E4"}) == 6 and M.tuning({"dropd"})[1] == 38, "tuning")
 check(M.tuning({"E2", "nonsense"}) == nil and #M.tuning({"7string"}) == 7, "tuning 2")
+do  -- typed into a symbol box: one symbol with spaces
+   local a, b = M.tuning({"E2 A2 D3 G3 B3 E4"}), M.tuning({"E2", "A2", "D3", "G3", "B3", "E4"})
+   check(#a == 6 and a[1] == b[1] and a[6] == b[6], "typed octaves")
+   check(#M.tuning({"F A C G C E"}) == 6 and M.tuning({"F A C G C E"})[1] == M.tuning({"FACGCE"})[1], "typed letters")
+   check(M.tuning({"40 45 50 55 59 64"})[2] == 45, "typed numbers")
+end
 
 -- the open shapes come first
 local C = M.voicings(set(0, 4, 7), 0, std, 0, 15)

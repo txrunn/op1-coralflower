@@ -4,5 +4,7 @@
 #X obj 10 90 print FRET;
 #X obj 200 10 loadbang;
 #X msg 200 40 \; T-tunsel 1 \; T-tunsel 6 \; T-tunsel2 10 \; T-tunsel2 0 \; T-span 5 \; T-bassmode 1 \; T-bassmode 0 \; T-capo 2 \; T-out 1 \; T-state chord Gm7 \; T-state root 7 \; T-state chordch 3 \; T-state bassch 4 \; T-state tonic 5 \; coralop-notes 60 100 1 \; pd quit;
+#X obj 400 10 r T-tunsel-in;
+#X obj 400 40 r T-tunsel2-in;
 #X connect 1 0 2 0;
 #X connect 3 0 4 0;

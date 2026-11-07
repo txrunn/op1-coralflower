@@ -111,6 +111,11 @@ function M.place(pcs)
 end
 
 function M.tuning(atoms)
+   if #atoms == 1 and type(atoms[1]) == "string" and atoms[1]:find("%s") then
+      local split = {}                  -- one typed symbol, "E2 A2 D3 ..." (a symbol box keeps the spaces)
+      for w in atoms[1]:gmatch("%S+") do split[#split + 1] = tonumber(w) or w end
+      atoms = split
+   end
    if #atoms == 1 and type(atoms[1]) == "string" and PRESETS[atoms[1]:lower()] then
       local t = {}
       for i, p in ipairs(PRESETS[atoms[1]:lower()]) do t[i] = p end
@@ -629,7 +634,8 @@ function fret:paint(g)
             g:fill_ellipse(cx - r, cy - r, 2 * r, 2 * r)
             if on then
                col(g, BG)
-               g:draw_text(self:pcname(pc), cx - r + 2, cy - 5, 2 * r, 10)
+               local nm = self:pcname(pc)       -- (centred by eye: draw_text has no alignment)
+               g:draw_text(nm, math.floor(cx - 3.4 * #nm), cy - 6, 2 * r, 11)
             end
          end
       end

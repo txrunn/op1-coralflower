@@ -4,6 +4,8 @@ CoralOP 0.2 listens on **USB MIDI channel 16**. A computer can play its keys, ch
 what the OP-1 is doing, including the chord name. This folder has panels that use that, plus a fretboard that shows
 the chords on a guitar neck.
 
+![The panel and the fretboard in plugdata: FACGCE, Fmaj9 as an open strum](../docs/images/coralop-guitar-facgce.png)
+
 | file | what it is |
 |---|---|
 | `pd/coralop-guitar.pd` | **open this in plugdata**: the panel and the fretboard |
@@ -13,6 +15,7 @@ the chords on a guitar neck.
 | `pd/coralop-core.pd`, `pd/coralop-guitar-glue.pd` | the protocol and the wiring (keep all `pd/` files together) |
 | `max/coralop-remote.maxpat` + `max/coralop-core.js` | the panel for Max 8/9 (keep the two together) |
 | `tools/gen_pd.py`, `tools/gen_max.py` | regenerate the patches |
+| `tools/shots.py` | the screenshots above, taken in plugdata (Linux: Xvfb, xdotool, ImageMagick, jackd) |
 | `tests/run_tests.sh` | the Pd patches against golden output, the Max core in node, the fretboard logic in Lua |
 
 ## FL Studio + plugdata (Windows and Mac)
@@ -23,8 +26,9 @@ the chords on a guitar neck.
    - **Output:** select the OP-1 and set **Port** to `1`.
    - **Input:** select the OP-1, click **Enable**, and set **Port** to `1`.
    - Make sure **Options › Enable MIDI output** is ticked.
-3. Add **plugdata** to the Channel Rack as an instrument (the VST3). In plugdata, open `pd/coralop-guitar.pd`.
-   plugdata stores the patch with your FL project.
+3. Add **plugdata** to the Channel Rack as an instrument (the VST3). In plugdata, open `pd/coralop-guitar.pd`,
+   then click the **plug button** at the top right for plugin mode: just the panel, as in the picture. (Click the
+   pencil at its top right to get back to the patch.) plugdata stores the patch with your FL project.
 4. In plugdata's wrapper, open the gear menu, then **VST wrapper settings**, then **MIDI**. Set the **output port**
    to `1` (CoralOP's controls go to the OP-1) and the **input port** to `1` (the OP-1's state and notes come back).
 5. Click **SYNC**: the panel takes on the OP-1's settings and keeps following them.
@@ -40,12 +44,13 @@ plays them back in on channels 1 and 2.
 
 **Guitar voicings into FL:** plugdata has a single MIDI output, and that one goes to the OP-1. For the voicings, add
 a **second plugdata** with `pd/coralop-voicing.pd`, input port `1` and output port `2`, then give a guitar instrument
-input port `2`. Its **VOICING_TO_MIDI** starts on: every chord you play on the OP-1 is played again as the shape on
-the neck, strummed low to high on **OUT_CH** (3). Record those notes, or change the shape with `<` `>`.
+input port `2`. Its **VOICING TO MIDI** starts on: every chord you play on the OP-1 is played again as the shape on
+the neck, strummed low to high on **OUT CH** (3). Record those notes, or change the shape with `<` `>`.
 
 ## The fretboard
 
-It shows every chord tone along the neck: the root in coral, the bass in blue, the other tones in green. The
+It shows every chord tone along the neck: the bass in blue, the root in coral (when it isn't also the bass), the
+other tones in green. The
 **shape** is the larger dots: one note per string, at most four fingers (a barre counts as one) within four frets,
 open strings allowed, and the chord's bass on the lowest string played. **`<` `>`** above the neck step through
 the shapes from the nut upwards. When the chord changes, the next shape is the one nearest to where your hand
@@ -53,15 +58,16 @@ already is. A single note (no chord) shows every place that note can be played.
 
 - **Tunings:** two rows of presets. The first is standard and lowered: standard, Eb, D, drop D, drop C, drop B,
   Nashville, 7-string, 8-string and bass. The second is open, modal and math rock: open G, D, E, A, C and F, open
-  Dm, Cm and Gm, DADGAD, FACGCE, CGCGCE, FACFCF, DADEAD, CGDGBD and EADEAE. For anything else, edit a message and
-  click it:
-  - **Letters** like `tuning FACGCE`, `tuning DADF#AD` or `tuning EbAbDbGbBbEb`. The lowest string lands near E2
-    and each next string is the nearest note above the one before. In all-lowercase input, `b` is the note B.
-  - **Octaves** like `tuning E3 A3 D4 G4 B3 E4`. Use these when a string is lower than the one below it
-    (Nashville, re-entrant or "B below G" tunings). The bass rule goes by pitch, not by string, so these work.
+  Dm, Cm and Gm, DADGAD, FACGCE, CGCGCE, FACFCF, DADEAD, CGDGBD and EADEAE. For anything else, type it into the box under
+  **your own** and press Enter:
+  - **Letters** like `FACGCE`, `DADF#AD` or `EbAbDbGbBbEb`. The lowest string lands near E2 and each next string is
+    the nearest note above the one before. In all-lowercase input, `b` is the note B.
+  - **Octaves** like `E3 A3 D4 G4 B3 E4`. Use these when a string is lower than the one below it (Nashville,
+    re-entrant or "B below G" tunings). The bass rule goes by pitch, not by string, so these work.
+  - Other patches can send `tuning …` to the fretboard the same way.
 - **STRETCH** (2–5): how many frets past the first fret your hand covers. 3 means four frets; 4 or 5 opens up
   wide math-rock shapes.
-- **BASS_NOTE** `low`: the chord's bass is the lowest note (what the OP-1's bass plays). `any`: open low strings
+- **BASS NOTE** `low`: the chord's bass is the lowest note (what the OP-1's bass plays). `any`: open low strings
   can ring under the chord, but shapes with the real bass still come first.
 - Open strings: in standard-type tunings they're kept to the first position. In open and altered tunings they're
   preferred anywhere on the neck, so every open tuning's open strum shows up as its chord's first shape, and a
@@ -69,12 +75,12 @@ already is. A single note (no chord) shows every place that note can be played.
 - Tested: every major, minor, 7, maj7, m7, sus2, sus4, add9, m9 and maj9 chord in all 12 keys finds a shape in
   every preset, including FACGCE and Nashville (the ukulele preset misses some five-note chords, since it has four
   strings). Every shape found is checked, and so are 300 random tunings (strings in any order, unisons, a capo).
-- **CAPO**, **FRETS** (12–24; fewer is lighter), **STRUM_MS**, **OUT_CH**, **LEFTY**.
+- **CAPO**, **FRETS** (12–24; fewer is lighter), **STRUM MS**, **OUT CH**, **LEFTY**.
 - Other patches can feed it with `[s coralop-notes]` ("pitch vel ch", as from `[notein]`) and
   `[s coralop-state]`.
 
 It runs in plugdata's audio thread. Working out the shapes takes under 1 ms per chord change on a desktop CPU.
-The heaviest setting (8 strings, STRETCH 5, 24 frets, BASS_NOTE any) is capped at about 15 ms; at a very small FL
+The heaviest setting (8 strings, STRETCH 5, 24 frets, BASS NOTE any) is capped at about 15 ms; at a very small FL
 buffer, keep STRETCH at 3.
 
 ## Pure Data on its own

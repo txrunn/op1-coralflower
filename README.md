@@ -4,7 +4,15 @@
 Instruments Orchid) on the original OP-1, with chords and bass out over USB MIDI, a plugdata / Pd / Max remote, and
 a guitar fretboard that shows every chord on the neck in any tuning.
 
-![The plugdata panel with the fretboard](docs/images/coralop-guitar.png)
+![The CoralOP panel in plugdata: an Em9 from the OP-1, and its shape on the guitar neck](docs/images/coralop-guitar.png)
+
+<p>
+<img src="docs/images/coralop_play.png" width="49%" alt="The OP-1's screen, PLAY page: quantize, key, scale, layout, and the keyboard with its chord buttons and scale degrees">
+<img src="docs/images/coralop_chord.png" width="49%" alt="The OP-1's screen, CHORD page: editing a chord button, with Cmaj7 sounding">
+</p>
+
+*Top: the plugdata panel in plugin mode, fed the same MIDI an OP-1 sends (`remote/tools/shots.py`). Bottom: the
+OP-1's screen as CoralOP draws it, rendered by the Blackfin simulator bench (pixel for pixel, but not a photo).*
 
 > **Status: 0.2, experimental.** All host and Blackfin-simulator tests pass, but nothing has been played on a
 > real OP-1 yet, inside plugdata in FL Studio, or in Max. Read [Safe first flash](#safe-first-flash) first.
