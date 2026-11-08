@@ -15,8 +15,12 @@ OP-1's 10 black keys, its 16 roots the OP-1's 14 white keys. The 11th button (HO
 
 ## Turn it on
 
-**Shift + insert** (synth playmode): on, the panel opens. Shift + insert again with the panel closed opens it;
-with the panel showing it turns CoralOP **off**. **Insert** while the panel shows pins it (no 5 s timeout).
+The keys are named as printed on the OP-1. **drop** is the middle of lift / drop / split (TE's code calls it
+"insert"). The [top-level README](../README.md#playing-it) has the same in pictures.
+
+**Shift + drop** (synth mode): on, the panel opens. Shift + drop again with the panel closed opens it; with the
+panel showing it turns CoralOP **off**. **Drop** while the panel shows pins it (no 5 s timeout; drop again unpins and
+closes it). T1–T3 open the panel on their page.
 
 While on, the 24 note keys belong to CoralOP (TE plays nothing of its own) and T1–T4 are CoralOP's. Everything else
 stays TE's: the octave arrows (they set CoralFlower's octave), the synth's sound, tape, mixer. Drum playmode and
@@ -77,22 +81,24 @@ LOCAL on, velocity 100.
 1. `test_co_play.c` (host, with CoralFlower's model compiled in): the OP-1's key roles, latching, Wait / Notes /
    Chord, combining, bass and octaver, HOLD, Quantize Full in a mode, Side, reset, and 200,000 random key events
    across every layout and setting with no stuck or doubled note.
-2. `sim/run_cotest.py` (Blackfin simulator, TE stubbed): off = stock, shift + insert, a latched chord on channel 1
+2. `sim/run_cotest.py` (Blackfin simulator, TE stubbed): off = stock, shift + drop, a latched chord on channel 1
    with its bass on channel 2 and on the voices, combining, HOLD on T4, the MIDI page (channel, LOCAL), drum
    playmode and the sequencer's screen left to TE, off with a chord held (balanced note-offs, the held key's release swallowed), the USB-MIDI
    packet format; the remote (off: only CC 20 / 110 taken; the host's notes as keys, OP-1 and host keys together,
    settings and their echo, HOLD, panic); screenshots of the PLAY and CHORD pages.
+4. `screens/`: the panel drawn on a PC from this code (`render.py`: the README's screen images; `host.c` runs in
+   `scripts/test.sh`).
 3. `test_co_remote.c` (host): every parameter's range and wire form, knob steps, the feedback (only changes, the name
    never cut), ASCII chord names. `../remote/tests/run_tests.sh`: the Pd patches, the Max core, the fretboard.
 
 ## Device test
 
-1. Shift + insert; tap the `M` black key (C#, upper octave), play white keys: triads in C major on MIDI ch 1, the
+1. Shift + drop; tap the `M` black key (C#, upper octave), play white keys: triads in C major on MIDI ch 1, the
    bass on ch 2 (check with a MIDI monitor on the computer).
 2. Hold `M` and `M7` together, release, play: maj7 chords. T4, play, let go: HOLD.
 3. T1: KEY / SCALE / QUANTIZE Full; T2: edit a button; T3 twice: channels, LOCAL off.
 4. Octave arrows: chords move by octaves. Drum key: drums play as usual.
-5. Shift + insert with the panel showing: off, nothing hangs on the synth or the MIDI side.
+5. Shift + drop with the panel showing: off, nothing hangs on the synth or the MIDI side.
 
 ## Credits and licence
 

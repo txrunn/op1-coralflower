@@ -26,7 +26,9 @@
 /* usbmidi_tx_enqueue(cable, packets, count) in R246 (found by op1r: devupd/du_fw.c, seqdev/ms_fw.c TX_ENQ): queues
  * 4-byte USB-MIDI event packets {CIN, status, d1, d2} for the host; masks interrupts itself, does nothing while
  * USB is not up */
+#ifndef CO_USBMIDI_TX                           /* (screens/host.c: the PC renderer brings its own) */
 #define CO_USBMIDI_TX ((void (*)(int, const void *, unsigned))0x019E0D18)
+#endif
 
 enum { PG_PLAY = 0, PG_CHORD, PG_BASS, PG_MIDI, PG_N };
 
@@ -424,6 +426,9 @@ static const struct { char c; uint8_t row[5]; } GLYPH[] = {
 static int text(int x, int y, const char *s, uint16_t c, int sc)
 {
     char one[2] = {0, 0};
+#ifdef CO_HOST_TEXT                             /* screens/host.c: the string as it is, for a smooth font */
+    return CO_HOST_TEXT(x, y, s, c, sc);
+#endif
     for (; *s; s++) {
         unsigned char ch = (unsigned char)*s;
         unsigned g;
